@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/fr1"
+        android:icon="@android:drawable/ic_menu_gallery"
+        android:title="Movies" />
+
+    <item
+        android:id="@+id/fr2"
+        android:icon="@android:drawable/ic_menu_gallery"
+        android:title="TV Shows" />
+
+    <item
+        android:id="@+id/fr3"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="People" />
+
+</menu>

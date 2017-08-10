@@ -1,6 +1,7 @@
-package com.brandwidth.demoapp;
+package com.brandwidth.demoapp.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +11,13 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.brandwidth.demoapp.Model.BeanClass;
+import com.brandwidth.demoapp.R;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,6 +28,11 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
     private List<BeanClass> beanClassList;
 
     private onRecyclerViewItemClickListener mItemClickListener;
+
+    public MyRecycleAdapter(Context mContext, List<BeanClass> beanClassList) {
+        this.mContext = mContext;
+        this.beanClassList = beanClassList;
+    }
 
     public void setOnItemClickListener(onRecyclerViewItemClickListener mItemClickListener) {
         this.mItemClickListener = mItemClickListener;
@@ -58,11 +68,6 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
     }
 
 
-    public MyRecycleAdapter(Context mContext, List<BeanClass> beanClassList) {
-        this.mContext = mContext;
-        this.beanClassList = beanClassList;
-    }
-
     @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -81,8 +86,6 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
 
         Glide.with(mContext).load(imgUrl)
                 .placeholder(R.mipmap.ic_launcher)
-/*                .skipMemoryCache(false)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)*/
                 .skipMemoryCache(false)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(holder.thumbnail);
@@ -93,14 +96,15 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
 
 
     }
-    public void updateList(List<BeanClass> list){
-        beanClassList = list;
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {
         return beanClassList.size();
     }
 
+    public void setFilter(List<BeanClass> paramBeanClass){
+        beanClassList = new ArrayList<>();
+        beanClassList.addAll(paramBeanClass);
+        notifyDataSetChanged();
+    }
 }

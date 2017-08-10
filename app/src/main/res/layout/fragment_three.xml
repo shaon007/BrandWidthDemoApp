@@ -3,16 +3,8 @@
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context="com.brandwidth.demoapp.Fragment.ThreeFragment"
+tools:context="com.brandwidth.demoapp.Fragment.PeopleFragment"
 android:orientation="vertical">
-
-    <EditText
-        android:id="@+id/searchtxt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Type here and search for a person"
-        android:background="#617696"
-        android:textColor="#ffffff"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_3"

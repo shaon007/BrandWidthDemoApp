@@ -1,4 +1,4 @@
-package com.brandwidth.demoapp;
+package com.brandwidth.demoapp.Adapters;
 
 
 import android.support.v4.app.Fragment;

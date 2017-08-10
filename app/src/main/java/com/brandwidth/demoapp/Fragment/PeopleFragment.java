@@ -8,49 +8,48 @@ import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.brandwidth.demoapp.Model.BeanClass;
 import com.brandwidth.demoapp.DetailsActivity;
+import com.brandwidth.demoapp.Model.BeanClass;
 import com.brandwidth.demoapp.Model.BeanDetails;
 import com.brandwidth.demoapp.MyHttpHandler;
-import com.brandwidth.demoapp.MyRecycleAdapter;
+import com.brandwidth.demoapp.Adapters.MyRecycleAdapter;
 import com.brandwidth.demoapp.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class TwoFragment extends Fragment
+public class PeopleFragment extends Fragment implements SearchView.OnQueryTextListener
 {
-
     ArrayList<BeanClass> list_beanObjects;
     private ProgressDialog pDialog;
 
+    private static final String TAG3 = "RecyclerViewFragment";
+    private static final String KEY_LAYOUT_MANAGER3 = "layoutManager";
 
-    private static final String TAG2 = "RecyclerViewFragment";
-    private static final String KEY_LAYOUT_MANAGER2 = "layoutManager";
+    private static final int SPAN_COUNT3 = 2;
 
-    private static final int SPAN_COUNT2 = 2;
-
-    protected LayoutManagerType mCurrentLayoutManagerType2;
+    protected LayoutManagerType mCurrentLayoutManagerType3;
 
     private RecyclerView mRecyclerView;
     private MyRecycleAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
-
-    private EditText searchText;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -58,7 +57,7 @@ public class TwoFragment extends Fragment
     }
 
 
-    public TwoFragment() {
+    public PeopleFragment() {
         // Required empty public constructor
     }
 
@@ -66,7 +65,6 @@ public class TwoFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         list_beanObjects = new ArrayList<>();
 
     }
@@ -74,25 +72,23 @@ public class TwoFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState)
     {
-        View rootView =  inflater.inflate(R.layout.fragment_two, container, false);
-        rootView.setTag(TAG2);
+        View rootView =  inflater.inflate(R.layout.fragment_three, container, false);
+        rootView.setTag(TAG3);
 
-        searchText = (EditText) rootView.findViewById(R.id.searchtxt);
+        setHasOptionsMenu(true);
 
-        init_searchView();
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_3);
 
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view_2);
+        mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT3);
 
-        mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT2);
-
-        mCurrentLayoutManagerType2 = LayoutManagerType.GRID_LAYOUT_MANAGER;
+        mCurrentLayoutManagerType3 = LayoutManagerType.GRID_LAYOUT_MANAGER;
 
         if (savedInstanceState != null) {
-            mCurrentLayoutManagerType2 = (LayoutManagerType) savedInstanceState
-                    .getSerializable(KEY_LAYOUT_MANAGER2);
+            mCurrentLayoutManagerType3 = (LayoutManagerType) savedInstanceState
+                    .getSerializable(KEY_LAYOUT_MANAGER3);
         }
 
-        setRecyclerViewLayoutManager(mCurrentLayoutManagerType2);
+        setRecyclerViewLayoutManager(mCurrentLayoutManagerType3);
 
         mAdapter = new MyRecycleAdapter(getActivity(), list_beanObjects);
 
@@ -101,49 +97,15 @@ public class TwoFragment extends Fragment
         return rootView;
     }
 
-    private void init_searchView()
-    {
-        searchText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                // filter your list from your input
-                filter(s.toString().toLowerCase());
-                //you can use runnable postDelayed like 500 ms to delay search text
-            }
-        });
-    }
-
-
-    void filter(String text) {
-        ArrayList<BeanClass> temp = new ArrayList();
-        for (BeanClass d : list_beanObjects) {
-            if (d.getName().toLowerCase().contains(text)) {
-                temp.add(d);
-            }
-        }
-        mAdapter.updateList(temp);
-    }
-
 
     @Override
     public void onResume() {
         super.onResume();
-        if(isNetworkAvailable(getActivity())) {
+        if(isNetworkAvailable(getActivity()))
+        {
             if (list_beanObjects != null)
                 list_beanObjects.clear();
+
             new getAsyncData().execute();
         }
     }
@@ -162,7 +124,7 @@ public class TwoFragment extends Fragment
             BeanClass aObj;
 
             MyHttpHandler sh = new MyHttpHandler();
-            String url = "https://api.themoviedb.org/3/tv/popular?api_key=d0aea524bd07ed49cbc26dff63f357dd&language=en-US&page=1";
+            String url = "https://api.themoviedb.org/3/person/popular?api_key=d0aea524bd07ed49cbc26dff63f357dd&language=en-US&page=1";
             String jsonStr = sh.makeServiceCall(url);
 
             Log.i("logResult2", "Response from url: " + jsonStr);
@@ -177,14 +139,13 @@ public class TwoFragment extends Fragment
                     for (int i = 0; i < contacts.length(); i++) {
                         JSONObject aJsonObj = contacts.getJSONObject(i);
                         String id = aJsonObj.getString("id");
+                        String path = aJsonObj.getString("profile_path");
                         String name = aJsonObj.getString("name");
-                        String path = aJsonObj.getString("poster_path");
-                        String vote = aJsonObj.getString("vote_average");
 
-                        aObj = new BeanClass(id,name,path, vote);
+                        aObj = new BeanClass(id,name,path,"8");
                         list_beanObjects.add(aObj);
 
-                         Log.d("logResult2", aObj.getId() + " >> " +aObj.getName()+ ">> " + aObj.getPath());
+                        Log.d("logResult2", aObj.getId() + " >> " +aObj.getName()+ ">> " + aObj.getPath());
 
                     }
                 }
@@ -214,8 +175,6 @@ public class TwoFragment extends Fragment
                         Toast.makeText(getActivity(),"Please check your internet connection!", Toast.LENGTH_SHORT).show();
                 }
             });
-
-
         }
 
 
@@ -238,16 +197,16 @@ public class TwoFragment extends Fragment
 
         switch (layoutManagerType) {
             case GRID_LAYOUT_MANAGER:
-                mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT2);
-                mCurrentLayoutManagerType2 = LayoutManagerType.GRID_LAYOUT_MANAGER;
+                mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT3);
+                mCurrentLayoutManagerType3 = LayoutManagerType.GRID_LAYOUT_MANAGER;
                 break;
             case LINEAR_LAYOUT_MANAGER:
                 mLayoutManager = new LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType2 = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                mCurrentLayoutManagerType3 = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
                 break;
             default:
                 mLayoutManager = new LinearLayoutManager(getActivity());
-                mCurrentLayoutManagerType2 = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
+                mCurrentLayoutManagerType3 = LayoutManagerType.LINEAR_LAYOUT_MANAGER;
         }
 
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -257,12 +216,11 @@ public class TwoFragment extends Fragment
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save currently selected layout manager.
-        savedInstanceState.putSerializable(KEY_LAYOUT_MANAGER2, mCurrentLayoutManagerType2);
+        savedInstanceState.putSerializable(KEY_LAYOUT_MANAGER3, mCurrentLayoutManagerType3);
         super.onSaveInstanceState(savedInstanceState);
     }
 
-
-// --------------- asynctask for retreiving details
+    // --------------- asynctask for retreiving details
 
     private class getDetailAsync extends AsyncTask<String, Void, Void>
     {
@@ -283,7 +241,7 @@ public class TwoFragment extends Fragment
         {
             MyHttpHandler sh = new MyHttpHandler();
 
-            String url = "https://api.themoviedb.org/3/tv/"+params[0]+"?api_key=d0aea524bd07ed49cbc26dff63f357dd&language=en-US";
+            String url = "https://api.themoviedb.org/3/person/"+params[0]+"?api_key=d0aea524bd07ed49cbc26dff63f357dd&language=en-US";
             String jsonStr = sh.makeServiceCall(url);
 
             if (jsonStr != null)
@@ -291,25 +249,17 @@ public class TwoFragment extends Fragment
                 try {
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
-                    JSONArray genres = jsonObj.getJSONArray("genres");
-                    String strGenre = jsonArrToString(genres,"name");
-
-                  //  jsonObj.get("runtime");
-
-                    String strLanguages =jsonObj.get("original_language").toString();
-
-                    StringBuilder strExtras = new StringBuilder();
-                    strExtras.append( "Genres: "+strGenre +
-                            "\nLanguages: "+strLanguages+
-                            "\nEpisodes: "+ jsonObj.get("number_of_episodes").toString());
+                    double popular = Double.valueOf(jsonObj.get("popularity").toString())/10;
+                    String strPopularity = String.valueOf(popular);
 
 
-                    aDetailObj = new BeanDetails(params[0], jsonObj.get("backdrop_path").toString(), jsonObj.get("vote_average").toString(),
-                            jsonObj.get("name").toString(), "First Air Date: "+ jsonObj.get("first_air_date").toString(), "Overview: "+jsonObj.get("overview").toString(),
-                            "Networks: "+jsonArrToString(jsonObj.getJSONArray("networks") , "name"),
-                            strExtras.toString()
+                    aDetailObj = new BeanDetails(params[0], jsonObj.get("profile_path").toString(), strPopularity,
+                            jsonObj.get("name").toString(), "Born: "+ jsonObj.get("birthday").toString(), "Biography: "+jsonObj.get("biography").toString(),
+                            "Birth place: "+jsonObj.get("place_of_birth").toString(),
+                            ""
                     );
 
+                    Log.d("logResult_obj", aDetailObj.functoString());
                 }
                 catch (final Exception e)
                 {
@@ -353,4 +303,54 @@ public class TwoFragment extends Fragment
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main, menu);
+
+        final MenuItem item = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        searchView.setOnQueryTextListener(this);
+
+        MenuItemCompat.setOnActionExpandListener(item,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        mAdapter.setFilter(list_beanObjects);
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        return true;
+                    }
+                });
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        final List<BeanClass> filteredModelList = filter(list_beanObjects, newText);
+        mAdapter.setFilter(filteredModelList);
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+
+    private List<BeanClass> filter(List<BeanClass> models, String query) {
+        query = query.toLowerCase();
+
+        final List<BeanClass> filteredModelList = new ArrayList<>();
+        for (BeanClass model : models) {
+            final String text = model.getName().toLowerCase();
+            if (text.contains(query)) {
+                filteredModelList.add(model);
+            }
+        }
+        return filteredModelList;
+    }
 }
+

@@ -1,23 +1,14 @@
 package com.brandwidth.demoapp;
 
 
-import android.animation.ObjectAnimator;
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.brandwidth.demoapp.Fragment.OneFragment;
-import com.brandwidth.demoapp.Fragment.ThreeFragment;
-import com.brandwidth.demoapp.Fragment.TwoFragment;
 import com.brandwidth.demoapp.Model.BeanDetails;
 import com.bumptech.glide.Glide;
 
@@ -26,13 +17,22 @@ public class DetailsActivity extends AppCompatActivity
 {
     ImageView imgView;
     TextView txtVwName, txtVwDate, txtVwOverview, txtVwProductionPlace, txtVwExtra;
+    private Toolbar toolbar;
+
+    TextView tv;
+    ProgressBar pBar;
+    int pStatus = 8;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
         initialize();
@@ -52,7 +52,12 @@ public class DetailsActivity extends AppCompatActivity
         txtVwDate.setText(myParcelableObject.getRelease_date());
         txtVwOverview.setText(myParcelableObject.getOverview());
         txtVwProductionPlace.setText(myParcelableObject.getProduction_place());
-        txtVwExtra.setText(myParcelableObject.getExtraString());
+        txtVwExtra.setText(myParcelableObject.getExtraString() +"\n");
+
+        float fprog= Float.valueOf(myParcelableObject.getRating());
+        int prog=(int)fprog;
+        pBar.setProgress(prog);
+        tv.setText(prog + "/" + pBar.getMax());
     }
 
     private void  initialize()
@@ -63,6 +68,11 @@ public class DetailsActivity extends AppCompatActivity
         txtVwOverview = (TextView)findViewById(R.id.detail_overview);
         txtVwProductionPlace = (TextView)findViewById(R.id.detail_production_place);
         txtVwExtra = (TextView)findViewById(R.id.detail_extra);
+
+        tv = (TextView) findViewById(R.id.textView1);
+        pBar = (ProgressBar) findViewById(R.id.progressBar1);
+
+
     }
 
     @Override
